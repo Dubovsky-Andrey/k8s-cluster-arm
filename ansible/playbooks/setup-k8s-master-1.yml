@@ -1,0 +1,25 @@
+---
+- name: Playbook to install Kubernetes master
+  hosts: setup_k8s_master_1
+  become: yes
+  gather_facts: no
+  roles:
+    - role: ../roles/setup-k8s-master-1
+      vars:
+        flannel_version: "v0.26.2"
+        cidr: "10.244.0.0/16"
+        kubernetes_config_path: "/etc/kubernetes/admin.conf"
+        kubernetes_join_path: "/home/habib/kubeadm_init_output.log"
+        kube_user: habib
+        kube_home: /home/habib
+    - role: ../roles/setup-k8s-namespaces
+      vars:
+        namespace_name_1: prod
+        namespace_name_2: stage
+        namespace_name_3: test
+        kube_user: habib
+    # - role: ../roles/setup-k8s-metallb
+    #   vars:
+    #     kube_home: /home/habib
+    #     metallb_version: v0.14.8
+    #     cidr: "192.168.1.50-192.168.1.90"

@@ -1,0 +1,31 @@
+- name: Download MetalLB manifest
+  get_url:
+    url: https://raw.githubusercontent.com/metallb/metallb/{{ metallb_version }}/config/manifests/metallb-native.yaml
+    dest: /tmp/metallb-native.yaml
+
+- name: Apply MetalLB manifest using k8s module
+  kubernetes.core.k8s:
+    state: present
+    src: /tmp/metallb-native.yaml
+    kubeconfig: "{{ kube_home }}/.kube/config"
+
+- name: Apply MetalLB manifest
+  become: yes
+  become_user: "{{ kube_user }}"
+  shell: |
+    kubectl apply -f /tmp/metallb-native.yaml
+  environment:
+    KUBECONFIG: "{{ kube_home }}/.kube/config"
+
+- name: Deploy MetalLB configuration
+  template:
+    src: metallb-config.yml.j2
+    dest: /tmp/metallb-config.yml
+
+- name: Apply MetalLB config manifest
+  become: yes
+  become_user: "{{ kube_user }}"
+  shell: |
+    kubectl apply -f /tmp/metallb-config.yml
+  environment:
+    KUBECONFIG: "{{ kube_home }}/.kube/config"

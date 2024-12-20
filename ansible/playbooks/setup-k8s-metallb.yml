@@ -1,0 +1,11 @@
+---
+- name: Playbook to set up MetalLB
+  hosts: setup_k8s_master_1
+  become: yes
+  gather_facts: no
+  roles:
+    - role: ../roles/setup-k8s-metallb
+      vars:
+        kube_home: /home/habib
+        metallb_version: v0.14.8
+        cidr: "192.168.1.50-192.168.1.90"

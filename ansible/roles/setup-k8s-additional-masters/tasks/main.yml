@@ -1,0 +1,23 @@
+- name: reboot
+  reboot:
+    reboot_timeout: 600
+
+- name: Debug variables
+  debug:
+    msg:
+      - "Master IP: {{ master_1_ip }}"
+      - "Token: {{ token }}"
+      - "Discovery Token: {{ discovery_token }}"
+      
+- name: Execute kubeadm join command
+  shell: |
+    kubeadm join {{ master_1_ip }}:6443 --token {{ token }} \
+    --discovery-token-ca-cert-hash sha256:{{ discovery_token }} --control-plane
+  args:
+    executable: /bin/bash
+
+- name: Label Kubernetes node with its name
+  command: >
+    kubectl label node {{ inventory_hostname }} node-role.kubernetes.io/worker={{ inventory_hostname }}
+  args:
+  become: yes
