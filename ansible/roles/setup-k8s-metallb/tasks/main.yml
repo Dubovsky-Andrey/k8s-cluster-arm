@@ -3,12 +3,6 @@
     url: https://raw.githubusercontent.com/metallb/metallb/{{ metallb_version }}/config/manifests/metallb-native.yaml
     dest: /tmp/metallb-native.yaml
 
-- name: Apply MetalLB manifest using k8s module
-  kubernetes.core.k8s:
-    state: present
-    src: /tmp/metallb-native.yaml
-    kubeconfig: "{{ kube_home }}/.kube/config"
-
 - name: Apply MetalLB manifest
   become: yes
   become_user: "{{ kube_user }}"
@@ -21,6 +15,10 @@
   template:
     src: metallb-config.yml.j2
     dest: /tmp/metallb-config.yml
+
+- name: Wait for MetalLB pods to be ready
+  pause:
+    seconds: 30
 
 - name: Apply MetalLB config manifest
   become: yes

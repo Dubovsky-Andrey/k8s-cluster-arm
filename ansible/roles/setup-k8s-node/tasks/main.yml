@@ -16,10 +16,4 @@
   args:
     executable: /bin/bash
 
-- name: Label Kubernetes node with its name
-  command: >
-    kubectl label node {{ inventory_hostname }} node-role.kubernetes.io/worker={{ inventory_hostname }}
-  args:
-  become: yes
-
 

@@ -3,9 +3,8 @@
   hosts: setup_k8s_masters_additionals
   become: yes
   gather_facts: no
+  vars_files:
+    - ../group_vars/setup-k8s-general.yml
   roles:
     - role: ../roles/setup-k8s-masters-additionals
-      vars:
-        master_1_ip: "192.168.1.30"
-        token: "m7hep9.7hsxjymvkenrv643"
-        discovery_token: "dbe4f250335de9b56d359b8b9090d27385bae947db2d855ccd6ac23abeafa7a1"
+

@@ -1,18 +1,14 @@
 - name: Playbook to install kubernetes dependencies
   hosts: setup_k8s
   become: yes
+  vars_files:
+  - ../group_vars/setup-k8s-general.yml
   roles:
     - role: ../roles/update-upgrade-system
     - role: ../roles/disable-swap
     - role: ../roles/setup-cgroups
-      vars:
-        file_path: "/boot/firmware/cmdline.txt"
     - role: ../roles/install-aptitude
     - role: ../roles/setup-container-runtime
     - role: ../roles/setup-python
     - role: ../roles/setup-iptable-k8s
     - role: ../roles/install-kubernetes
-      vars:
-        kube_user: habib
-        kube_home: /home/habib
-        kubernetes_version: "v1.31"

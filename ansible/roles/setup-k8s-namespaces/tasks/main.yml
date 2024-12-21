@@ -6,8 +6,10 @@
     group: "{{ kube_user }}"
     mode: '0644'
 
-- name: Create a Neamespaces
-  kubernetes.core.k8s:
-    state: present
-    src: /tmp/namespaces.yml
-    kubeconfig: /home/habib/.kube/config
+- name: Apply Neamespaces manifest
+  become: yes
+  become_user: "{{ kube_user }}"
+  shell: |
+    kubectl apply -f /tmp/namespaces.yml
+  environment:
+    KUBECONFIG: "{{ kube_home }}/.kube/config"

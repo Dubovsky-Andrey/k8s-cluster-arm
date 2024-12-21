@@ -1,0 +1,90 @@
+# Download and install Flannel
+
+- name: Download and install Flannel
+  ansible.builtin.get_url:
+    url: https://github.com/flannel-io/flannel/releases/download/{{ flannel_version }}/flanneld-arm64
+    dest: /usr/local/bin/flanneld
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create Flannel networks directory
+  ansible.builtin.file:
+    path: /var/lib/k8s/flannel/networks
+    state: directory
+    recurse: yes
+    owner: root
+    group: root
+    mode: '0755'
+
+# reboot
+
+- name: reboot
+  reboot:
+    reboot_timeout: 600
+
+- name: Initialize Kubernetes cluster with kubeadm
+  command: kubeadm init --pod-network-cidr="{{ cidr_pods }}"
+  args:
+    creates: "{{ kubernetes_config_path }}"
+  become: yes
+  register: kubeadm_init
+  retries: 70
+  delay: 10
+  until: kubeadm_init.rc == 0
+
+- name: Display full kubeadm init output for debugging
+  debug:
+    var: kubeadm_init.stdout
+
+- name: Save full kubeadm init output to a file
+  copy:
+    content: "{{ kubeadm_init.stdout }}"
+    dest: "{{ kubernetes_join_path }}"
+    owner: "{{ kube_user }}"
+    group: "{{ kube_user }}"
+    mode: '0644'
+  when: kubeadm_init.changed
+
+
+- name: Create directory .kube in home directory user
+  file:
+    path: "{{ kube_home }}/.kube"
+    state: directory
+    mode: '0755'
+    owner: "{{ kube_user }}"
+    group: "{{ kube_user }}"
+
+- name: Copy admin.conf to kubeconfig path
+  copy:
+    src: "{{ kubernetes_config_path }}"
+    dest: "{{ kube_home }}/.kube/config"
+    owner: "{{ kube_user }}"
+    group: "{{ kube_user }}"
+    mode: '0644'
+    remote_src: yes
+
+- name: Setup permissions owner and group for kubeconfig
+  file:
+    path: "{{ kube_home }}/.kube/config"
+    owner: "{{ kube_user }}"
+    group: "{{ kube_user }}"
+    mode: '0644'
+
+# Скачивание манифеста Flannel CNI
+- name: Download Flannel CNI manifest
+  become: yes
+  become_user: "{{ kube_user }}"
+  get_url:
+    url: https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+    dest: /tmp/kube-flannel.yml
+
+# Применение манифеста Flannel CNI
+- name: Apply Flannel CNI manifest
+  become: yes
+  become_user: "{{ kube_user }}"
+  shell: |
+    kubectl apply -f /tmp/kube-flannel.yml --validate=false
+  environment:
+    KUBECONFIG: "{{ kube_home }}/.kube/config"
+
