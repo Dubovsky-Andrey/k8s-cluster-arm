@@ -9,6 +9,5 @@
     - role: ../roles/setup-cgroups
     - role: ../roles/install-aptitude
     - role: ../roles/setup-container-runtime
-    - role: ../roles/setup-python
     - role: ../roles/setup-iptable-k8s
     - role: ../roles/install-kubernetes

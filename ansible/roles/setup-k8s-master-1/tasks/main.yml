@@ -24,7 +24,7 @@
     reboot_timeout: 600
 
 - name: Initialize Kubernetes cluster with kubeadm
-  command: kubeadm init --pod-network-cidr="{{ cidr_pods }}"
+  command: kubeadm init --pod-network-cidr="{{ cidr_pods }}" --control-plane-endpoint="{{ master_1_ip }}" --upload-certs
   args:
     creates: "{{ kubernetes_config_path }}"
   become: yes
@@ -44,7 +44,7 @@
     owner: "{{ kube_user }}"
     group: "{{ kube_user }}"
     mode: '0644'
-  when: kubeadm_init.changed
+  #when: kubeadm_init.changed
 
 
 - name: Create directory .kube in home directory user
@@ -87,4 +87,3 @@
     kubectl apply -f /tmp/kube-flannel.yml --validate=false
   environment:
     KUBECONFIG: "{{ kube_home }}/.kube/config"
-
