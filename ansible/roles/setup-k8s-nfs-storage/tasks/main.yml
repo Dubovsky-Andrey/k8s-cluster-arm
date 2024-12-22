@@ -1,0 +1,12 @@
+- name: Deploy NFS storage configuration
+  template:
+    src: metallb-config.yml.j2
+    dest: /tmp/nfs-storage.yml
+
+- name: Apply NFS storage config manifest
+  become: yes
+  become_user: "{{ kube_user }}"
+  shell: |
+    kubectl apply -f /tmp/nfs-storage.yml
+  environment:
+    KUBECONFIG: "{{ kube_home }}/.kube/config"

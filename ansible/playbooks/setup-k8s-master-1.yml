@@ -8,4 +8,5 @@
   roles:
     - role: ../roles/setup-k8s-master-1
     - role: ../roles/setup-k8s-namespaces
+    - role: ../roles/setup-k8s-nfs-storage
 
