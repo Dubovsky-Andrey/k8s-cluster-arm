@@ -1,7 +1,10 @@
-- name: Deploy NFS storage configuration
+- name: Copy namespace manifest to target
   template:
-    src: metallb-config.yml.j2
+    src: nfs-storage.yml
     dest: /tmp/nfs-storage.yml
+    owner: "{{ kube_user }}"
+    group: "{{ kube_user }}"
+    mode: '0644'
 
 - name: Apply NFS storage config manifest
   become: yes

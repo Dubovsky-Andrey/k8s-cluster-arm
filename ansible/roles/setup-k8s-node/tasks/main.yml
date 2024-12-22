@@ -1,7 +1,3 @@
-- name: reboot
-  reboot:
-    reboot_timeout: 600
-
 - name: Debug variables
   debug:
     msg:
@@ -15,5 +11,3 @@
     --discovery-token-ca-cert-hash sha256:{{ discovery_token }}
   args:
     executable: /bin/bash
-
-
